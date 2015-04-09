@@ -1,6 +1,9 @@
 package cmu.decomp.svd;
 
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import cmu.core.*;
@@ -64,6 +67,9 @@ public class Master_Spliter {
 		for (int i = 0; i < subNum; i++) {
 			beginToSlave = i * sizeOfSubPart;
 			endToSlave = beginToSlave + sizeOfSubPart - 1;
+			if (endToSlave >= src.cols) {
+				endToSlave = src.cols - 1;
+			}
 			tag = new Tag(beginToSlave, endToSlave);
 			index.add(tag);
 		}
@@ -71,4 +77,29 @@ public class Master_Spliter {
 		return index;
 	}
 	
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		double[] test = new double[1000*1000];
+		int slaveNum = 4;
+		int q = 0;
+        BufferedReader br = new BufferedReader(new FileReader("svd.data.txt"));
+        String line;
+        while ((line = br.readLine()) != null) {
+            test[q] = Double.parseDouble(line);
+            q++;
+        }
+        br.close();
+		
+        // initialize original matrix
+        int rows = 1000;
+        int cols = 1000;
+        Mat score = new Mat(rows, cols ,test);
+		Master_Spliter split = new Master_Spliter(score, slaveNum);
+        ArrayList<Tag> index = split.split();
+        // test
+        System.out.println((int) Math.ceil ( (double) 1000 / 3));
+        for (int i = 0; i < slaveNum; i++) {
+            System.out.println("The " + i + "th begin tag is: " + index.get(i).begin);
+            System.out.println("The " + i + "th end tag is: " + index.get(i).end);
+        }
+	}
 }
