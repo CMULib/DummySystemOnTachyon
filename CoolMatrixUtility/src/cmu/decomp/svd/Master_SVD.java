@@ -14,6 +14,7 @@ public class Master_SVD {
    private static int MAX_ITER = 500;    // The max loop of iteration
    public int iter;						 // current numbers of loop for iteration
    private static double ALPHA = 0.90;   // coenfficient of iteration
+   private int updateNum;                // number of updates, need to equal to subNum
 
 	/**
 	 * Master_SVD Constructor Initialize parameters.
@@ -25,6 +26,7 @@ public class Master_SVD {
 	  this.L = new Mat(src.rows,1);
 	  this.updateL = new Mat(src.rows,1);
 	  this.iter = 0;
+	  this.updateNum = 0;
   }
   
   /**
@@ -68,14 +70,31 @@ public class Master_SVD {
 	   else 
 		   return false;
   }
+  /**
+   * isPerformed no parameter
+   * compare original L with updated L, to check if complete the iteration
+   */
+  public boolean isPerformed () {
+	  if (updateNum < subNum) {
+		  return false;
+	  }
+	   if (MatOp.dist(this.updateL, this.L, MatOp.NormType.NORM_L2) < EPS || iter > MAX_ITER)
+		   return true;
+	   else 
+		   return false;
+  }
   
   /**
    * update_SVD
    * update L when new slaveL come
    */
   public void update_SVD (Mat slaveL) {
+	  if (updateNum >= subNum) {
+		  updateNum = 0;
+	  }
 	  slaveL = slaveL.mul((1-ALPHA)/subNum);
 	  this.updateL = MatOp.add(this.updateL, slaveL); 
+	  updateNum++;
   }
   
 }
