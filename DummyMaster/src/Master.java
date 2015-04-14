@@ -11,7 +11,15 @@ import java.io.*;
 import edu.cmu.cmulib.communication.CommonPacket;
 import com.yiranf.TachyonTest.*;
 
-
+/*
+   How to use this
+   Master master = new Master(4, "/BinData", 8000);
+   master.init();
+   do {
+     String str = master.excute();
+   while(!master.isCompleted());
+    String final = master.dispFinal();
+  */
 public class Master {
 	
 	private Mat score;
@@ -56,11 +64,10 @@ public class Master {
         while(commu.slaveNum()<slaveNum){System.out.println(commu.slaveNum());}
         this.Like = svd.initL();
 	}
-	public void execute() {
+	public String execute() {
 		Tag tag;
 		Mat slaveL = null;
         // compute the first eigenvector iterately
-        do {
             int remain = slaveNum;
             svd.setL(Like);
             String output = dispArray(Like.data);   // information need to show 
@@ -88,13 +95,16 @@ public class Master {
                     
             Like = svd.getUpdateL();
             MatOp.vectorNormalize(Like, MatOp.NormType.NORM_L2);
-        } while (!svd.isPerformed(Like));     //termination of iteration
-        String finalout = "final  " + dispArray(Like.data);   // final information
+        return output;
 	}
 	
 	public boolean isCompleted() {
 		return svd.isPerformed();
 	}
+    public String dispFinal() {
+        String finalout = "final  " + dispArray(this.Like.data);   // final information
+        return finalout;
+    }
 
 	
 	// Original main method
